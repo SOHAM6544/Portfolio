@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Laser Cutting Documentation - Digital Fabrication Lab</title>
+
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+
+<style>
+  /* === THEME: heavy, modern, glassmorphism + neon accents === */
+  :root{
+    --bg-1: linear-gradient(135deg,#fffaf6 0%, #fff2f2 40%, #fff6f0 100%);
+    --card-bg: rgba(255,255,255,0.75);
+    --glass: rgba(255,255,255,0.6);
+    --accent: #d23131;
+    --accent-2: #ff6b6b;
+    --muted: #5b4a4a;
+    --text: #2b2b2b;
+    --shadow: 0 10px 30px rgba(210,49,49,0.12);
+    --glass-border: rgba(210,49,49,0.06);
+    --glass-blur: 8px;
+    --max-width: 980px;
+  }
+  body.dark {
+    --bg-1: linear-gradient(135deg,#0f0f10 0%, #0a0a0b 50%);
+    --card-bg: rgba(24,10,10,0.6);
+    --glass: rgba(255,255,255,0.02);
+    --accent: #ff8888;
+    --accent-2: #ffb4b4;
+    --muted: #f1cfcf;
+    --text: #f6d8d8;
+    --shadow: 0 12px 35px rgba(255,100,100,0.06);
+    --glass-border: rgba(255,100,100,0.08);
+    --glass-blur: 6px;
+  }
+
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0;font-family:'Poppins',sans-serif;background:var(--bg-1);color:var(--text);scroll-behavior:smooth}
+
+  /* --- page layout --- */
+  .app{
+    display:flex;
+    min-height:100vh;
+  }
+
+  /* --- SIDE NAV (fixed) --- */
+  .side{
+    position:fixed;left:18px;top:48px;width:250px;padding:18px;border-radius:16px;background:var(--card-bg);backdrop-filter: blur(var(--glass-blur));box-shadow:var(--shadow);border:1px solid var(--glass-border);z-index:1200;
+    transition:transform .35s ease, box-shadow .35s ease;
+  }
+  .side .logo{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+  .side h3{margin:0;font-size:1rem;color:var(--accent);letter-spacing:1px}
+
+  .toc{margin-top:10px}
+  .toc a{display:block;padding:10px;border-radius:10px;color:var(--muted);text-decoration:none;font-weight:600;margin-bottom:6px;border-left:3px solid transparent;transition:all .25s ease}
+  .toc a:hover{transform:translateX(6px);color:var(--accent)}
+  .toc a.active{background:linear-gradient(90deg,rgba(210,49,49,0.06),rgba(255,107,107,0.02));border-left-color:var(--accent);color:var(--accent)}
+
+  /* collapse toggle for nav on small screens */
+  .side .navToggle{display:none}
+
+  /* main content area */
+  .main{
+    margin-left:300px; /* space for nav */
+    padding:44px 36px 80px 36px;
+    flex:1;
+    max-width:var(--max-width);
+  }
+  .header{
+    text-align:center;margin-bottom:18px
+  }
+  h1{font-size:3rem;margin:6px 0;color:var(--accent);letter-spacing:2px}
+  .subtitle{max-width:760px;margin:8px auto 28px auto;color:var(--muted);font-size:1.08rem}
+
+  /* machine images row */
+  .machines{display:flex;gap:22px;justify-content:center;margin-bottom:28px}
+  .machine{
+    width:340px;height:220px;border-radius:14px;background:linear-gradient(180deg,rgba(255,255,255,0.85),rgba(255,255,255,0.65));box-shadow:0 14px 30px rgba(0,0,0,0.06);overflow:hidden;border:1px solid var(--glass-border);display:flex;align-items:center;justify-content:center;position:relative;cursor:pointer;transition:transform .45s cubic-bezier(.2,.9,.2,1),box-shadow .35s ease;
+  }
+  .machine:hover{transform:translateY(-6px) scale(1.02);box-shadow:0 20px 40px rgba(210,49,49,0.10)}
+  .machine img{width:100%;height:100%;object-fit:cover}
+  .machine .placeholder{color:var(--accent);font-weight:700}
+
+  /* day cards */
+  .day-card{
+    background:linear-gradient(180deg,rgba(255,255,255,0.9),rgba(255,245,245,0.95));border-radius:16px;padding:26px;margin-bottom:26px;box-shadow:var(--shadow);border:1px solid var(--glass-border);overflow:hidden;transition:transform .3s ease,box-shadow .3s ease;position:relative
+  }
+  .day-card:hover{transform:translateY(-4px)}
+
+  .day-header{display:flex;align-items:center;gap:12px}
+  .day-header h2{font-size:1.8rem;margin:0;color:var(--accent);display:flex;align-items:center;gap:10px}
+  .day-header .chev{margin-left:auto;width:34px;height:34px;display:inline-flex;align-items:center;justify-content:center;border-radius:8px;cursor:pointer;transition:transform .3s ease;user-select:none}
+  .day-header .chev svg{width:18px;height:18px;fill:var(--accent)}
+  .day-header.open .chev{transform:rotate(90deg)}
+
+  .day-body{margin-top:16px;color:var(--muted);font-size:1.05rem}
+  .day-body ul{margin-left:18px;margin-top:10px}
+  .day-body li{margin-bottom:8px}
+
+  /* small image inside day */
+  .day-img{width:300px;height:170px;margin:18px auto 0;border-radius:12px;border:1px solid var(--glass-border);overflow:hidden;background:rgba(255,250,250,0.7);display:flex;align-items:center;justify-content:center}
+  .day-img img{width:100%;height:100%;object-fit:cover}
+
+  /* collapsed state uses max-height animation */
+  .collapsed .day-body{max-height:0;overflow:hidden;padding:0;opacity:0;transform:translateY(-8px);transition:all .5s cubic-bezier(.2,.9,.2,1)}
+  .expanded .day-body{max-height:800px;opacity:1;transform:translateY(0);transition:all .55s cubic-bezier(.2,.9,.2,1)}
+
+  /* footer */
+  .footer{margin-top:34px;padding:18px;border-top:1px solid var(--glass-border);text-align:center;font-weight:700;color:var(--accent);border-radius:8px}
+
+  /* top-right floating controls */
+  .controls{position:fixed;right:18px;bottom:18px;display:flex;flex-direction:column;gap:10px;z-index:1300}
+  .btn{background:var(--accent);color:#fff;padding:.6rem .9rem;border-radius:24px;border:none;font-weight:700;cursor:pointer;box-shadow:0 8px 20px rgba(210,49,49,0.18)}
+  .btn.ghost{background:transparent;color:var(--accent);border:1px solid rgba(210,49,49,0.12)}
+
+  /* progress bar */
+  .progress-wrap{position:fixed;left:50%;transform:translateX(-50%);top:10px;width:60%;height:6px;background:rgba(255,255,255,0.3);border-radius:6px;overflow:hidden;z-index:1400;box-shadow:0 6px 30px rgba(0,0,0,0.06)}
+  .progress{height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent-2));transition:width .15s linear}
+
+  /* laser underline effect for headings */
+  .laser-underline{position:relative;display:inline-block}
+  .laser-underline::after{content:'';position:absolute;left:0;right:0;bottom:-6px;height:6px;background:linear-gradient(90deg,var(--accent),transparent);filter:blur(6px);opacity:.9;transform-origin:left;transform:scaleX(.02);transition:transform .6s cubic-bezier(.2,.9,.2,1)}
+  .laser-underline.active::after{transform:scaleX(1)}
+
+  /* paste/drop highlight */
+  .drop-target{outline:2px dashed rgba(210,49,49,0.12);transition:outline-color .25s ease,transform .25s ease}
+  .drop-target.over{outline-color:var(--accent);transform:translateY(-4px)}
+
+  /* responsive */
+  @media(max-width:1000px){
+    .side{left:12px;top:12px;width:220px}
+    .main{margin-left:260px;padding:24px}
+    .machines{flex-direction:column;align-items:center}
+  }
+  @media(max-width:720px){
+    .side{position:static;width:100%;border-radius:10px;margin:12px}
+    .app{flex-direction:column}
+    .main{margin-left:0;padding:18px}
+    .controls{right:12px;bottom:12px}
+    .progress-wrap{width:90%}
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- SIDE NAV -->
+  <aside class="side" id="sideNav" aria-label="Day Navigation">
+    <div class="logo"><svg width="40" height="40" viewBox="0 0 24 24" fill="none"><path d="M12 2L15 8H9L12 2Z" fill="#d23131"/><path d="M3 20L21 20L12 4L3 20Z" fill="#ffdede"/></svg><h3>Digital Fabrication Lab</h3></div>
+    <nav class="toc" id="toc">
+      <a href="#day1" data-target="day1" class="active">Day 1 – Intro & Applications</a>
+      <a href="#day2" data-target="day2">Day 2 – Hardware & Software</a>
+      <a href="#day3" data-target="day3">Day 3 – Design Basics</a>
+      <a href="#day4" data-target="day4">Day 4 – Materials & Settings</a>
+      <a href="#day5" data-target="day5">Day 5 – Operating the Laser</a>
+      <a href="#day6" data-target="day6">Day 6 – Project Day</a>
+      <a href="#day7" data-target="day7">Day 7 – Review & Maintenance</a>
+    </nav>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main" id="main">
+    <div class="header">
+      <h1 class="laser-underline" id="title">Laser Cutting Documentation</h1>
+      <p class="subtitle">This intensive module introduces learners to laser cutting technology, covering essential concepts, hardware and software, file preparation, material selection, safe operation, troubleshooting, and practical projects to master digital fabrication skills.</p>
+    </div>
+
+    <div class="machines" aria-label="Machine images">
+      <div class="machine drop-target" id="machineImage1" tabindex="0" aria-label="Paste or drop image here (machine 1)">
+        <img src="WhatsApp Image 2025-09-21 at 4.22.28 PM (1).jpeg" alt="Machine 1">
+      </div>
+      <div class="machine drop-target" id="machineImage2" tabindex="0" aria-label="Paste or drop image here (machine 2)">
+        <img src="WhatsApp Image 2025-09-21 at 4.22.29 PM.jpeg" alt="Machine 2">
+      </div>
+    </div>
+
+    <!-- DAYS -->
+    <section class="day-card expanded" id="day1" tabindex="0" aria-labelledby="day1title" data-open="true">
+      <div class="day-header">
+        <h2 id="day1title"><span class="material-symbols-outlined" aria-hidden="true">laser_cutting</span>&nbsp;Day 1 – Intro & Applications</h2>
+        <div class="chev" role="button" aria-label="Toggle Day 1"></div>
+      </div>
+      <div class="day-body">
+        <ul>
+          <li>What is laser cutting?</li>
+          <li>Types of lasers (CO2, Fiber, Diode)</li>
+          <li>Common uses (wood, acrylic, etc.)</li>
+          <li>Safety basics</li>
+          <li>✅ Activity: List 5 laser-cut items.</li>
+        </ul>
+        <div class="day-img drop-target" aria-label="Paste image here for Day 1"><img src="WhatsApp Image 2025-09-21 at 4.22.28 PM.jpeg" alt="Day1"></div>
+      </div>
+    </section>
+
+    <section class="day-card expanded" id="day2" tabindex="0" aria-labelledby="day2title" data-open="true">
+      <div class="day-header">
+        <h2 id="day2title"><span class="material-symbols-outlined" aria-hidden="true">hardware</span>&nbsp;Day 2 – Hardware & Software</h2>
+        <div class="chev" role="button" aria-label="Toggle Day 2"></div>
+      </div>
+      <div class="day-body">
+        <ul>
+          <li>Laser cutter parts (laser tube, bed, exhaust, etc.)</li>
+          <li>Software: LaserCad (version)</li>
+          <li>Vector vs Raster, file types (.svg, .dxf)</li>
+          <li>✅ Activity: design a basic shape</li>
+        </ul>
+        <div class="day-img drop-target" aria-label="Paste image here for Day 2"><img src="WhatsApp Image 2025-09-21 at 5.03.49 PM.jpeg" alt="Day2"></div>
+      </div>
+    </section>
+
+    <section class="day-card expanded" id="day3" tabindex="0" aria-labelledby="day3title" data-open="true">
+      <div class="day-header">
+        <h2 id="day3title"><span class="material-symbols-outlined" aria-hidden="true">design_services</span>&nbsp;Day 3 – Design Basics</h2>
+        <div class="chev" role="button" aria-label="Toggle Day 3"></div>
+      </div>
+      <div class="day-body">
+        <ul>
+          <li>Cut vs engrave setup</li>
+          <li>Design tips for press fit</li>
+          <li>✅ Activity: small box design and engraving</li>
+        </ul>
+        <div class="day-img drop-target" aria-label="Paste image here for Day 3"><img src="WhatsApp Image 2025-09-21 at 4.30.28 PM.jpeg" alt="Day3"></div>
+      </div>
+    </section>
+
+    <section class="day-card expanded" id="day4" tabindex="0" aria-labelledby="day4title" data-open="true">
+      <div class="day-header">
+        <h2 id="day4title"><span class="material-symbols-outlined" aria-hidden="true">layers</span>&nbsp;Day 4 – Materials & Settings</h2>
+        <div class="chev" role="button" aria-label="Toggle Day 4"></div>
+      </div>
+      <div class="day-body">
+        <ul>
+          <li>Materials: wood, acrylic (types), paper, cardboard, etc.</li>
+          <li>Power/speed settings</li>
+          <li>Testing cuts</li>
+          <li>✅ Activity: run a speed/power test grid on cardboard</li>
+        </ul>
+        <div class="day-img drop-target" aria-label="Paste image here for Day 4"><img src="WhatsApp Image 2025-09-21 at 4.34.41 PM.jpeg" alt="Day4"></div>
+      </div>
+    </section>
+
+    <section class="day-card expanded" id="day5" tabindex="0" aria-labelledby="day5title" data-open="true">
+      <div class="day-header">
+        <h2 id="day5title"><span class="material-symbols-outlined" aria-hidden="true">settings</span>&nbsp;Day 5 – Operating the Laser</h2>
+        <div class="chev" role="button" aria-label="Toggle Day 5"></div>
+      </div>
+      <div class="day-body">
+        <ul>
+          <li>Focusing, bed setup, air assist, exhaust</li>
+          <li>Sending files, running job</li>
+          <li>Safety checks (emergency stop)</li>
+          <li>✅ Activity: cut your first real design</li>
+        </ul>
+        <div class="day-img drop-target" aria-label="Paste image here for Day 5"><img src="WhatsApp Image 2025-09-26 at 01.01.39_55f65acd.jpg" alt="Day5"></div>
+      </div>
+    </section>
+
+    <section class="day-card expanded" id="day6" tabindex="0" aria-labelledby="day6title" data-open="true">
+      <div class="day-header">
+        <h2 id="day6title"><span class="material-symbols-outlined" aria-hidden="true">build</span>&nbsp;Day 6 – Project Day</h2>
+        <div class="chev" role="button" aria-label="Toggle Day 6"></div>
+      </div>
+      <div class="day-body">
+        <ul>
+          <li>Make something useful (stand, box, 3D)</li>
+          <li>File prep, nesting, assembly</li>
+          <li>✅ Activity: complete & document your project</li>
+        </ul>
+        <div class="day-img drop-target" aria-label="Paste image here for Day 6"><img src="WhatsApp Image 2025-09-26 at 01.01.40_93e04419.jpg" alt="Day6"></div>
+      </div>
+    </section>
+
+    <section class="day-card expanded" id="day7" tabindex="0" aria-labelledby="day7title" data-open="true">
+      <div class="day-header">
+        <h2 id="day7title"><span class="material-symbols-outlined" aria-hidden="true">fact_check</span>&nbsp;Day 7 – Review & Maintenance</h2>
+        <div class="chev" role="button" aria-label="Toggle Day 7"></div>
+      </div>
+      <div class="day-body">
+        <ul>
+          <li>Common issues (burn, incomplete cut)</li>
+          <li>Basic maintenance (cleaning, lens, mirrors)</li>
+          <li>Project showcase</li>
+          <li>✅ Activity: present final work & reflect</li>
+        </ul>
+        <div class="day-img drop-target" aria-label="Paste image here for Day 7"><img src="WhatsApp Image 2025-09-26 at 01.01.39_a705a5a5.jpg" alt="Day7"></div>
+      </div>
+    </section>
+
+    <div class="footer">Digital Fabrication Lab - Made by Soham Lonsane</div>
+  </main>
+
+</div>
+
+<!-- floating controls and progress -->
+<div class="progress-wrap" aria-hidden="true"><div class="progress" id="progressBar"></div></div>
+<div class="controls" role="region" aria-label="Page controls">
+  <button class="btn" id="modeToggle" aria-pressed="false">Dark Mode</button>
+  <button class="btn ghost" id="backToTop">Top</button>
+</div>
+
+<script>
+  /* -----------------------------------------------------
+     Heavy JS: smooth interactions, IntersectionObserver
+     paste/drop images, keyboard accessibility, localStorage
+     -----------------------------------------------------*/
+
+  (function(){
+    // helpers
+    const $ = sel => document.querySelector(sel);
+    const $$ = sel => Array.from(document.querySelectorAll(sel));
+    const clamp = (v,mn,mx)=>Math.max(mn,Math.min(mx,v));
+
+    // persist theme + expanded state
+    const storage = {
+      get(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}},
+      set(k,v){localStorage.setItem(k,JSON.stringify(v))}
+    };
+
+    // initial theme
+    const body = document.body;
+    const modeBtn = document.getElementById('modeToggle');
+    const savedDark = storage.get('laser_dark');
+    if(savedDark) body.classList.add('dark');
+    modeBtn.textContent = body.classList.contains('dark') ? 'Light Mode' : 'Dark Mode';
+
+    modeBtn.addEventListener('click', ()=>{
+      body.classList.toggle('dark');
+      const isDark = body.classList.contains('dark');
+      modeBtn.textContent = isDark ? 'Light Mode' : 'Dark Mode';
+      storage.set('laser_dark', isDark);
+    });
+
+    // progress bar
+    const progressBar = $('#progressBar');
+    const updateProgress = ()=>{
+      const h = document.documentElement.scrollHeight - window.innerHeight;
+      const perc = h ? (window.scrollY / h) : 0;
+      progressBar.style.width = (perc*100)+'%';
+    };
+    window.addEventListener('scroll', updateProgress, {passive:true});
+    updateProgress();
+
+    // back to top
+    $('#backToTop').addEventListener('click', ()=>window.scrollTo({top:0,behavior:'smooth'}));
+
+    // Collapsible cards: keyboard + click
+    const dayCards = $$('.day-card');
+    // restore saved open states
+    const savedOpen = storage.get('laser_open') || {};
+
+    dayCards.forEach(card=>{
+      const header = card.querySelector('.day-header');
+      const btn = header.querySelector('.chev');
+      const bodyEl = card.querySelector('.day-body');
+      const id = card.id;
+
+      // set initial classes
+      const wasOpen = (savedOpen[id] === undefined) ? true : !!savedOpen[id];
+      card.classList.toggle('expanded', wasOpen);
+      card.classList.toggle('collapsed', !wasOpen);
+      header.classList.toggle('open', wasOpen);
+
+      // attach click + keyboard
+      const toggle = (e)=>{
+        const isOpen = card.classList.contains('expanded');
+        if(isOpen){
+          // collapse
+          card.classList.remove('expanded');
+          card.classList.add('collapsed');
+          header.classList.remove('open');
+          card.setAttribute('data-open','false');
+        } else {
+          card.classList.remove('collapsed');
+          card.classList.add('expanded');
+          header.classList.add('open');
+          card.setAttribute('data-open','true');
+        }
+        // save state
+        savedOpen[id] = !isOpen;
+        storage.set('laser_open', savedOpen);
+      };
+
+      btn.addEventListener('click', toggle);
+      header.addEventListener('keydown', (ev)=>{if(ev.key==='Enter'||ev.key===' '){ev.preventDefault();toggle()}});
+      // also clicking anywhere on header toggles
+      header.addEventListener('click',(ev)=>{ if(ev.target===btn||ev.currentTarget===ev.target || !ev.target.closest('.chev')) toggle(); });
+
+      // set ARIA
+      card.setAttribute('aria-expanded', String(wasOpen));
+    });
+
+    // IntersectionObserver for scrollspy
+    const tocLinks = $$('#toc a');
+    const sections = dayCards.map(c=>document.getElementById(c.id));
+
+    const obsOptions = {root:null,rootMargin:'-30% 0px -40% 0px',threshold:0};
+    const observer = new IntersectionObserver((entries)=>{
+      entries.forEach(en=>{
+        if(en.isIntersecting){
+          // find toc link
+          const id = en.target.id;
+          tocLinks.forEach(a=>a.classList.toggle('active', a.dataset.target===id));
+        }
+      });
+    },obsOptions);
+    sections.forEach(s=>observer.observe(s));
+
+    // smooth scroll on toc click
+    tocLinks.forEach(a=>{
+      a.addEventListener('click', (e)=>{
+        e.preventDefault();
+        const id = a.dataset.target;
+        const el = document.getElementById(id);
+        el && el.scrollIntoView({behavior:'smooth',block:'start'});
+        // set active quickly
+        tocLinks.forEach(l=>l.classList.remove('active')); a.classList.add('active');
+      });
+    });
+
+    // animate title underline when page loaded and when focused
+    const title = document.getElementById('title');
+    setTimeout(()=>title.classList.add('active'),200);
+    title.addEventListener('focus', ()=>title.classList.add('active'));
+    title.addEventListener('blur', ()=>title.classList.remove('active'));
+
+    // paste & drop images into .drop-target elements
+    const dropTargets = $$('.drop-target');
+
+    function handleFilesIntoElement(files, el){
+      if(!files || files.length===0) return;
+      const file = files[0];
+      if(!file.type.startsWith('image/')) return;
+      const reader = new FileReader();
+      reader.onload = (e)=>{
+        // replace image inside element or create one
+        let img = el.querySelector('img');
+        if(!img){ img = document.createElement('img'); el.innerHTML=''; el.appendChild(img); }
+        img.src = e.target.result;
+        img.alt = 'Pasted image';
+        img.style.opacity = 0; img.style.transform='scale(.95)';
+        requestAnimationFrame(()=>{ img.style.transition='opacity .45s ease, transform .45s ease'; img.style.opacity=1; img.style.transform='scale(1)'; })
+      };
+      reader.readAsDataURL(file);
+    }
+
+    dropTargets.forEach(el=>{
+      // paste
+      el.addEventListener('paste', (ev)=>{
+        const items = ev.clipboardData && ev.clipboardData.files ? ev.clipboardData.files : null;
+        if(items && items.length){ handleFilesIntoElement(items, el); ev.preventDefault(); }
+
+        // try items
+        if(ev.clipboardData && ev.clipboardData.items){
+          const filesArr = [];
+          for(const it of ev.clipboardData.items){ if(it.kind==='file'){ const f = it.getAsFile(); filesArr.push(f); }}
+          if(filesArr.length){ handleFilesIntoElement(filesArr, el); ev.preventDefault(); }
+        }
+      });
+
+      // drag/drop
+      el.addEventListener('dragover',(e)=>{ e.preventDefault(); el.classList.add('over') });
+      el.addEventListener('dragleave',(e)=>{ el.classList.remove('over') });
+      el.addEventListener('drop',(e)=>{ e.preventDefault(); el.classList.remove('over'); const dt = e.dataTransfer; if(dt && dt.files){ handleFilesIntoElement(dt.files, el); } });
+
+      // keyboard accessibility: allow pressing 'p' to prompt file selector
+      el.addEventListener('keydown',(e)=>{ if(e.key==='p'||e.key==='P'){ e.preventDefault(); const inp = document.createElement('input'); inp.type='file'; inp.accept='image/*'; inp.onchange = ()=>handleFilesIntoElement(inp.files, el); inp.click(); } });
+    });
+
+    // small UX: when user resizes window, re-run progress + reposition nav shadow
+    let resizeTimeout = null;
+    window.addEventListener('resize', ()=>{ window.clearTimeout(resizeTimeout); resizeTimeout = window.setTimeout(()=>{ updateProgress(); }, 120); });
+
+    // enhance navigation shadow when page scrolled
+    const side = document.getElementById('sideNav');
+    const onScroll = ()=>{ if(window.scrollY>60) side.classList.add('scrolled'); else side.classList.remove('scrolled'); updateProgress(); };
+    window.addEventListener('scroll', onScroll, {passive:true}); onScroll();
+
+    // Save expanded/collapsed on unload
+    window.addEventListener('beforeunload', ()=>{
+      const state = {};
+      dayCards.forEach(c=> state[c.id] = c.classList.contains('expanded'));
+      storage.set('laser_open', state);
+    });
+
+    // Keyboard: quick keys - n for next section, p for prev
+    window.addEventListener('keydown', (e)=>{
+      const key = e.key.toLowerCase();
+      if(key==='n' || key==='j'){
+        // go to next section
+        const focusable = $$('.day-card');
+        const idx = focusable.findIndex(el => el === document.activeElement || el.contains(document.activeElement));
+        const next = (idx===-1) ? 0 : clamp(idx+1,0,focusable.length-1);
+        focusable[next].focus();
+      }
+      if(key==='p' || key==='k'){
+        const focusable = $$('.day-card');
+        const idx = focusable.findIndex(el => el === document.activeElement || el.contains(document.activeElement));
+        const prev = (idx<=0) ? focusable.length-1 : idx-1;
+        focusable[prev].focus();
+      }
+    });
+
+    // friendly tooltip: show help if user presses ?
+    window.addEventListener('keydown', (e)=>{ if(e.key==='?'){ alert('Keyboard tips:\n - Enter/Space: toggle a day\n - P (on card): paste image\n - N/J: next card, P/K: previous card'); } });
+
+  })();
+</script>
+</body>
+</html>

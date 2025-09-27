@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Networking Module Documentation | Digital FabLab</title>
+  <style>
+    /* ===== Root Variables ===== */
+    :root {
+      --bg-dark: #0d1117;
+      --bg-card: rgba(255,255,255,0.05);
+      --accent: #00e0ff;
+      --accent2: #ff007c;
+      --text-light: #eaeaea;
+      --shadow: 0 0 20px rgba(0,224,255,0.4);
+      --radius: 14px;
+      --transition: all 0.4s ease;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: var(--bg-dark);
+      color: var(--text-light);
+      line-height: 1.7;
+      scroll-behavior: smooth;
+    }
+
+    /* ===== Progress Bar ===== */
+    #progress-bar {
+      position: fixed;
+      top: 0; left: 0;
+      height: 5px;
+      background: linear-gradient(90deg,var(--accent),var(--accent2));
+      width: 0%;
+      z-index: 2000;
+      transition: width 0.1s;
+    }
+
+    /* ===== Header ===== */
+    header {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #fff;
+      padding: 2rem 1rem;
+      text-align: center;
+      font-size: 2.5rem;
+      font-weight: bold;
+      letter-spacing: 2px;
+      text-shadow: 0 0 15px rgba(0,0,0,0.6);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    /* ===== Layout ===== */
+    .container {
+      display: flex;
+      max-width: 1200px;
+      margin: 2rem auto;
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    nav {
+      width: 260px;
+      background: var(--bg-card);
+      backdrop-filter: blur(15px);
+      padding: 2rem 1rem;
+      border-right: 2px solid var(--accent);
+      position: sticky;
+      top: 100px;
+      height: fit-content;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+    nav h2 {
+      color: var(--accent);
+      margin-bottom: 1.5rem;
+      font-size: 1.5rem;
+      text-align: center;
+      letter-spacing: 1px;
+    }
+    nav ul { list-style: none; }
+    nav ul li { margin: 1rem 0; }
+    nav ul li a {
+      display: block;
+      padding: 0.6rem 0.8rem;
+      color: var(--text-light);
+      text-decoration: none;
+      font-weight: 600;
+      border-left: 3px solid transparent;
+      border-radius: 6px;
+      transition: var(--transition);
+    }
+    nav ul li a:hover, nav ul li a.active {
+      background: rgba(0,224,255,0.15);
+      border-left-color: var(--accent);
+      color: var(--accent);
+      transform: translateX(6px);
+    }
+
+    /* ===== Main Content ===== */
+    main {
+      flex: 1;
+      padding: 2.5rem;
+    }
+    section {
+      margin-bottom: 4rem;
+      padding: 2rem;
+      background: var(--bg-card);
+      border-radius: var(--radius);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+      opacity: 0;
+      transform: translateY(50px);
+      transition: var(--transition);
+    }
+    section.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    section h3 {
+      font-size: 1.8rem;
+      margin-bottom: 1rem;
+      color: var(--accent);
+      border-bottom: 2px solid var(--accent);
+      padding-bottom: 0.3rem;
+      letter-spacing: 0.05em;
+    }
+    section p, section ul {
+      font-size: 1.05rem;
+      color: #ccc;
+    }
+    section ul { margin: 1rem 0 1rem 1.5rem; }
+    section ul li { margin-bottom: 0.6rem; }
+
+    section img {
+      display: block;
+      max-width: 100%;
+      margin-top: 1rem;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      cursor: pointer;
+      transition: transform 0.4s ease;
+    }
+    section img:hover { transform: scale(1.05); }
+
+    /* Mentor Section */
+    .mentor-section {
+      background: linear-gradient(145deg, rgba(0,224,255,0.1), rgba(255,0,124,0.1));
+      border-left: 5px solid var(--accent);
+      box-shadow: var(--shadow);
+    }
+    .mentor-section h3 {
+      color: var(--accent2);
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 1.5rem;
+      background: var(--bg-card);
+      color: var(--accent);
+      font-weight: bold;
+      border-top: 2px solid var(--accent2);
+      margin-top: 3rem;
+    }
+
+    /* Scroll to Top */
+    #scrollTopBtn {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      background: var(--accent);
+      border: none;
+      padding: 0.7rem 1.2rem;
+      border-radius: 50%;
+      font-size: 1.5rem;
+      color: #fff;
+      cursor: pointer;
+      box-shadow: var(--shadow);
+      opacity: 0;
+      transition: var(--transition);
+      z-index: 1500;
+    }
+    #scrollTopBtn.show { opacity: 1; }
+
+    /* Responsive */
+    @media(max-width: 900px) {
+      .container { flex-direction: column; }
+      nav { width: 100%; position: relative; top: 0; margin-bottom: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="progress-bar"></div>
+
+<header>
+  Networking Documentation
+</header>
+
+<div class="container">
+  <nav>
+    <h2>Networking Module</h2>
+    <ul>
+      <li><a href="#day1" class="active">Day 1: Introduction</a></li>
+      <li><a href="#day2">Day 2: Network Types & Data</a></li>
+      <li><a href="#day3">Day 3: OSI Model</a></li>
+      <li><a href="#day4">Day 4: HTTP & DNS</a></li>
+      <li><a href="#day5">Day 5: DHCP & Revision</a></li>
+      <li><a href="#day6">Day 6: Low-Level Protocols</a></li>
+      <li><a href="#day7">Day 7: Zynq FPGA Project</a></li>
+      <li><a href="#mentor">Mentor</a></li>
+    </ul>
+  </nav>
+
+  <main>
+    <!-- Day Sections -->
+    <section id="day1"><h3>Day 1: Introduction to Networking</h3>
+      <p>Building blocks of networking include sender, receiver, transmission medium, message, and protocol.</p>
+      <p>Modes of communication: simplex, half-duplex, full-duplex (walkie-talkies vs. video calls).</p>
+      <p>Analog vs digital signals, with digital dominant due to noise immunity.</p>
+      <p>Key characteristics: speed, accuracy, reliability, and security.</p>
+      <p>Example: WhatsApp packet journey across networks.</p>
+      <img src="images/networking/WhatsApp Image 2025-09-25 at 3.38.39 AM.jpeg" alt="Networking Introduction Illustration">
+    </section>
+
+    <section id="day2"><h3>Day 2: Types of Network & Nature of Data</h3>
+      <ul>
+        <li>LAN, MAN, WAN, PAN.</li>
+        <li>Client-server vs. peer-to-peer networks.</li>
+        <li>Bandwidth vs latency.</li>
+        <li>Types of data: structured, observed, inferred.</li>
+        <li>IoT as hybrid networking.</li>
+      </ul>
+      <img src="images/networking/WhatsApp Image 2025-09-25 at 3.39.22 AM.jpeg" alt="Network Types and Data Illustration">
+    </section>
+
+    <section id="day3"><h3>Day 3: The OSI Model Demystified</h3>
+      <p>7-layer model: Physical, Data Link, Network, Transport, Session, Presentation, Application.</p>
+      <p>Protocols: Ethernet, IP, TCP/UDP, SSL/TLS, HTTP/HTTPS.</p>
+      <p>Encapsulation and de-encapsulation.</p>
+      <p>Hands-on: ping and traceroute.</p>
+      <img src="WhatsApp Image 2025-09-25 at 4.06.48 AM.jpegg" alt="OSI Model Diagram">
+    </section>
+
+    <section id="day4"><h3>Day 4: Inside the Web - HTTP & DNS</h3>
+      <p>DNS: domain-to-IP mapping.</p>
+      <p>HTTP methods: GET, POST, PUT, DELETE.</p>
+      <p>Response codes: 2xx, 3xx, 4xx, 5xx.</p>
+      <p>Lab: nslookup and browser tools.</p>
+      <img src="WhatsApp Image 2025-09-25 at 3.39.35 AM.jpeg" alt="HTTP and DNS Workflow">
+    </section>
+
+    <section id="day5"><h3>Day 5: Revision & DHCP in Action</h3>
+      <p>OSI revision.</p>
+      <p>DHCP: automatic IP management.</p>
+      <p>Static vs dynamic IP.</p>
+      <p>DHCP: Discover → Offer → Request → Acknowledge.</p>
+      <img src="WhatsApp Image 2025-09-25 at 3.39.35 AM (1).jpeg" alt="DHCP Process Illustration">
+    </section>
+
+    <section id="day6"><h3>Day 6: Low-Level Protocols & Diagnostics</h3>
+      <ul>
+        <li>ARP: IP to MAC mapping.</li>
+        <li>ICMP: ping & traceroute.</li>
+        <li>DHCP Acknowledge step.</li>
+      </ul>
+      <p>Hands-on: trace packets & bottlenecks.</p>
+      <img src="WhatsApp Image 2025-09-25 at 3.39.34 AM (1).jpeg" alt="Network Protocols Diagnostic Tools">
+    </section>
+
+    <section id="day7"><h3>Day 7: From Theory to Zynq-Based App</h3>
+      <p>Zynq FPGA app using DHCP, ARP, ICMP.</p>
+      <p>Embedded-to-network communication.</p>
+      <p>Skills applicable to IoT, automation, edge computing.</p>
+      <img src="WhatsApp Image 2025-09-25 at 3.39.33 AM.jpeg" alt="Zynq FPGA Application">
+    </section>
+
+    <section id="mentor" class="mentor-section">
+      <h3>Mentor</h3>
+      <p>This module was guided by <strong>Gorav Sharma</strong>, providing expertise in networking and digital fabrication.</p>
+      <p>His mentorship added practical insights and invaluable guidance throughout.</p>
+    </section>
+  </main>
+</div>
+
+<footer>
+  Digital Fabrication | Made by Soham Lonsane
+</footer>
+
+<button id="scrollTopBtn" title="Scroll to top">&#8679;</button>
+
+<script>
+  // Scroll progress bar
+  window.addEventListener("scroll", () => {
+    const bar = document.getElementById("progress-bar");
+    const scroll = document.documentElement.scrollTop;
+    const height = document.documentElement.scrollHeight - window.innerHeight;
+    bar.style.width = (scroll / height) * 100 + "%";
+  });
+
+  // Section reveal on scroll
+  const sections = document.querySelectorAll("section");
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if(entry.isIntersecting){
+        entry.target.classList.add("visible");
+      }
+    });
+  }, { threshold: 0.2 });
+  sections.forEach(sec => observer.observe(sec));
+
+  // Active nav highlight
+  const navLinks = document.querySelectorAll("nav ul li a");
+  window.addEventListener("scroll", () => {
+    let current = "";
+    sections.forEach(sec => {
+      const secTop = sec.offsetTop - 120;
+      if (scrollY >= secTop) current = sec.id;
+    });
+    navLinks.forEach(link => {
+      link.classList.remove("active");
+      if(link.getAttribute("href").slice(1) === current) link.classList.add("active");
+    });
+  });
+
+  // Smooth scroll
+  navLinks.forEach(link=>{
+    link.addEventListener("click", e=>{
+      e.preventDefault();
+      document.getElementById(link.getAttribute("href").slice(1)).scrollIntoView({behavior:"smooth"});
+    });
+  });
+
+  // Scroll to top button
+  const scrollBtn = document.getElementById("scrollTopBtn");
+  window.addEventListener("scroll",()=>{
+    if(window.scrollY > 400) scrollBtn.classList.add("show");
+    else scrollBtn.classList.remove("show");
+  });
+  scrollBtn.addEventListener("click",()=> window.scrollTo({top:0,behavior:"smooth"}));
+</script>
+</body>
+</html>
